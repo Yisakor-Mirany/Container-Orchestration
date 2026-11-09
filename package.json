@@ -1,0 +1,21 @@
+{
+  "name": "container-orchestration",
+  "version": "1.0.0",
+  "description": "ContainerOps Dashboard - Week 04 Containerization & Orchestration assignment (Docker, Docker Compose, Nginx load balancing).",
+  "private": true,
+  "main": "app/server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "start": "node app/server.js",
+    "healthcheck": "node app/healthcheck.js",
+    "check": "node --check app/server.js && node --check app/healthcheck.js && node --check app/public/app.js",
+    "test:qa": "bash tests/qa-test.sh"
+  },
+  "dependencies": {
+    "express": "5.3.0"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="ContainerOps Dashboard - live runtime metadata from load-balanced Docker containers." />
+    <meta name="color-scheme" content="dark" />
+    <title>ContainerOps Dashboard</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">&#9638;</span>
+        <span class="brand-name">ContainerOps</span>
+      </div>
+      <nav class="nav" aria-label="Sections">
+        <a href="#overview">Overview</a>
+        <a href="#runtime">Runtime</a>
+        <a href="#balancer">Load Balancing</a>
+        <a href="#endpoints">Endpoints</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section id="overview" class="hero" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">ContainerOps Dashboard</h1>
+          <p class="subtitle">
+            Live runtime metadata from the Node.js container that served this request.
+            Traffic enters through Nginx and is load balanced across scaled Docker Compose replicas.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <div id="overall-health" class="health-pill health-unknown" role="status" aria-live="polite">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="overall-health-text">Checking&hellip;</span>
+          </div>
+          <button id="refresh-btn" class="btn btn-primary" type="button">
+            <span class="btn-label">Refresh Server Data</span>
+          </button>
+        </div>
+      </section>
+
+      <div id="error-banner" class="banner banner-error" role="alert" hidden></div>
+
+      <section id="runtime" aria-labelledby="runtime-title">
+        <h2 id="runtime-title" class="section-title">Serving Instance</h2>
+        <div class="grid" aria-busy="true" id="metrics-grid">
+          <article class="card">
+            <h3 class="card-label">Hostname</h3>
+            <p class="card-value mono" id="m-hostname" data-loading>&mdash;</p>
+            <p class="card-hint">Container hostname reported by the OS</p>
+          </article>
+          <article class="card">
+            <h3 class="card-label">Container ID</h3>
+            <p class="card-value mono" id="m-container-id" data-loading>&mdash;</p>
+            <p class="card-hint">Derived from the Docker hostname</p>
+          </article>
+          <article class="card">
+            <h3 class="card-label">Node.js Runtime</h3>
+            <p class="card-value mono" id="m-node" data-loading>&mdash;</p>
+            <p class="card-hint" id="m-platform">&nbsp;</p>
+          </article>
+          <article class="card">
+            <h3 class="card-label">Server Uptime</h3>
+            <p class="card-value" id="m-uptime" data-loading>&mdash;</p>
+            <p class="card-hint" id="m-started">&nbsp;</p>
+          </article>
+          <article class="card">
+            <h3 class="card-label">Server Timestamp</h3>
+            <p class="card-value mono small" id="m-timestamp" data-loading>&mdash;</p>
+            <p class="card-hint">ISO-8601, UTC</p>
+          </article>
+          <article class="card">
+            <h3 class="card-label">Requests (this instance)</h3>
+            <p class="card-value" id="m-requests" data-loading>&mdash;</p>
+            <p class="card-hint" id="m-probes">&nbsp;</p>
+          </article>
+          <article class="card">
+            <h3 class="card-label">Health (/healthz)</h3>
+            <p class="card-value" id="m-health" data-loading>&mdash;</p>
+            <p class="card-hint">Liveness probe</p>
+          </article>
+          <article class="card">
+            <h3 class="card-label">Readiness (/readyz)</h3>
+            <p class="card-value" id="m-ready" data-loading>&mdash;</p>
+            <p class="card-hint">Readiness probe</p>
+          </article>
+        </div>
+        <p class="meta" id="last-updated">Not yet loaded.</p>
+      </section>
+
+      <section id="balancer" aria-labelledby="balancer-title">
+        <h2 id="balancer-title" class="section-title">Load Balancing Sampler</h2>
+        <div class="card card-wide">
+          <p class="card-hint">
+            Sends a batch of requests to <code>/api/instances</code> and counts which replica answered each one.
+            With three healthy replicas you should see three different hostnames.
+          </p>
+          <div class="sampler-controls">
+            <label for="sample-count">Requests</label>
+            <select id="sample-count">
+              <option value="9">9</option>
+              <option value="15" selected>15</option>
+              <option value="30">30</option>
+            </select>
+            <button id="sample-btn" class="btn" type="button">
+              <span class="btn-label">Sample Replicas</span>
+            </button>
+          </div>
+          <div id="sample-results" class="sample-results" aria-live="polite">
+            <p class="muted">No samples yet.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="endpoints" aria-labelledby="endpoints-title">
+        <h2 id="endpoints-title" class="section-title">API Endpoints</h2>
+        <div class="card card-wide">
+          <ul class="endpoint-list">
+            <li><span class="method">GET</span><a href="/healthz" class="mono">/healthz</a><span class="muted">Liveness probe</span></li>
+            <li><span class="method">GET</span><a href="/readyz" class="mono">/readyz</a><span class="muted">Readiness probe (200 / 503)</span></li>
+            <li><span class="method">GET</span><a href="/api/info" class="mono">/api/info</a><span class="muted">Runtime information</span></li>
+            <li><span class="method">GET</span><a href="/api/instances" class="mono">/api/instances</a><span class="muted">Serving replica metadata</span></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Container-Orchestration &middot; Week 04 Containerization &amp; Orchestration</p>
+    </footer>
+  </body>
+</html>

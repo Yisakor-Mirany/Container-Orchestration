@@ -1,0 +1,52 @@
+# Keep the build context small and free of secrets.
+
+# Dependencies (installed inside the image with npm ci)
+node_modules
+npm-debug.log*
+
+# Version control
+.git
+.gitignore
+.gitattributes
+.github
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Logs and temporary files
+logs
+*.log
+tmp
+temp
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Tests and QA artifacts (not needed at runtime)
+tests
+coverage
+test-results
+qa-output
+*.lcov
+
+# Educational audit material (never part of the production image)
+audit
+
+# Documentation and editor settings
+*.md
+docs
+.vscode
+.idea
+
+# Container / orchestration definitions are not needed inside the image
+Dockerfile
+*.Dockerfile
+.dockerignore
+compose.yaml
+compose.*.yaml
+docker-compose*.yml
+nginx

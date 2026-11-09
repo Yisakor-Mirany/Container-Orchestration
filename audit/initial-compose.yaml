@@ -1,0 +1,47 @@
+# =============================================================================
+#  !!! INTENTIONALLY INCOMPLETE EDUCATIONAL EXAMPLE - NOT A PRODUCTION DEPLOYMENT !!!
+# =============================================================================
+#  Repository: Container-Orchestration  (audit/initial-compose.yaml)
+#
+#  A plausible *initial* AI-generated orchestration file, kept only for the
+#  comparison in audit/SECURITY_AUDIT.md. Do not run it. Deliberate problems:
+#
+#   [C1] Fixed host port on the app + container_name -> cannot scale past 1
+#   [C2] No resource limits/reservations              -> resource exhaustion
+#   [C3] No health checks                             -> undetected failures
+#   [C4] restart: "no"                                -> crashed app stays down
+#   [C5] depends_on without a health condition        -> proxy starts too early
+#   [C6] Floating image tag (nginx:latest)            -> non-reproducible
+#   [C7] App port published directly to all host interfaces (bypasses proxy)
+#   [C8] Runs as root with default capabilities, writable root filesystem
+#   [C9] Secret-looking value hard-coded in environment
+#   [C10] Unbounded json-file logs
+#   [C11] Nginx config hard-codes a single container name (no load balancing)
+# =============================================================================
+
+version: "3"   # obsolete top-level key (ignored by Compose v2)
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: audit/initial.Dockerfile
+    container_name: web            # [C1] unique name blocks --scale
+    ports:
+      - "3000:3000"                # [C1][C7] host port conflict when scaled
+    environment:
+      - NODE_ENV=development
+      - API_KEY=fake-example-key-do-not-use   # [C9] fake placeholder only
+    restart: "no"                  # [C4]
+    # [C2] no deploy.resources
+    # [C3] no healthcheck
+    # [C8] no user / cap_drop / read_only / security_opt
+
+  nginx:
+    image: nginx:latest            # [C6]
+    ports:
+      - "8080:80"
+    depends_on:
+      - web                        # [C5] only waits for container start
+    # [C11] e.g. "proxy_pass http://web:3000;" resolved ONCE at startup
+    # [C2][C3][C4][C8][C10] same omissions as above
